@@ -1,0 +1,64 @@
+﻿<Window x:Class="CopyFilesWithSpecifiedName.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CopyFilesWithSpecifiedName"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="FromButton" Content="From : " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="FromButton_Click"/>
+            <TextBox x:Name="FromTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
+        </Grid>
+        <Grid Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="ToButton" Content=" To :  " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ToButton_Click"/>
+            <TextBox x:Name="ToTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
+        </Grid>
+        <Grid Grid.Row="2" Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Content="共通ファイル名 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox x:Name="FileNameTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" TextChanged="FileNameTextBox_TextChanged"/>
+        </Grid>
+        <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="1" Margin="5,5,5,5">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
+                    <TextBlock Text="{Binding FromFile}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox x:Name="ToListBox" Grid.Row="1" Grid.Column="2" Margin="5,5,5,5" d:ItemsSource="{d:SampleData ItemCount=5}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
+                    <TextBlock Text="{Binding ToFile}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button x:Name="CopyButton" Content=" ⇒ " Margin="5,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" IsEnabled="False" Click="CopyButton_Click"/>
+        <Button x:Name="CloseButton" Content="Close" Margin="0,5,5,5" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseButton_Click"/>
+    </Grid>
+</Window>
