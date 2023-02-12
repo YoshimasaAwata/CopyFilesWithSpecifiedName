@@ -19,6 +19,9 @@
 | ControlzEx | [MIT](https://github.com/ControlzEx/ControlzEx/blob/develop/LICENSE) |
 | Microsoft.Xaml.Behaviors.Wpf |[MIT](https://github.com/microsoft/XamlBehaviorsWpf/blob/master/LICENSE) |
 | System.Text.Json | [MIT](https://www.nuget.org/packages/System.Text.Json/4.7.2/license) |
+| MaterialDesignThemes | [MIT](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/LICENSE) |
+| MaterialDesignColors | [MIT](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/LICENSE) |
+| MaterialDesignThemes.MahApps | [MIT](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/LICENSE) |
 
 ## 使用方法
 
