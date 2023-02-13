@@ -47,6 +47,14 @@
             <Button x:Name="ToButton" Content=" To :  " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ToButton_Click"/>
             <TextBox x:Name="ToTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
         </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Content="拡張子 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox x:Name="ExtensionTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" TextChanged="ExtensionTextBox_TextChanged"/>
+        </Grid>
         <Grid Grid.Row="2" Grid.Column="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>

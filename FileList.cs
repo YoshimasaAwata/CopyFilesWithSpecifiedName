@@ -37,6 +37,9 @@ namespace CopyFilesWithSpecifiedName
             NG,
         }
 
+        /// <value>フィルタリング用拡張子を複数指定する際の区切り文字</value>
+        private static readonly char[] Delimiter = { ',', ' ', '.', ';', ':' };
+
         /// <value>コピー元およびコピー先のファイル名のリスト</value>
         public ObservableCollection<FileNames> FileNameList { get; } = new ObservableCollection<FileNames>();
         /// <value>エラー等のメッセージ</value>
@@ -56,6 +59,8 @@ namespace CopyFilesWithSpecifiedName
                 this.MakeToFilesList();     // 変更の度にファイル名リストを更新
             } 
         }
+        /// <value>フィルタリング用拡張子のリスト</value>
+        private List<string>? extensions = null;
 
         /// <summary>
         /// ファイルのコピー元フォルダをセット</br>
@@ -72,10 +77,24 @@ namespace CopyFilesWithSpecifiedName
                 var files = Directory.GetFiles(dir);
                 SourceDir = dir;
                 FileNameList.Clear();
- 
-                foreach (var file in files)
+
+                if ((extensions != null) && (extensions.Count > 0))
                 {
-                    FileNameList.Add(new FileNames() { FromFile = file });
+                    foreach (var file in files)
+                    {
+                        var ext = Path.GetExtension(file).Substring(1); // 最初の'.'を除く
+                        if (extensions.Contains(ext))
+                        {
+                            FileNameList.Add(new FileNames() { FromFile = file });
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var file in files)
+                    {
+                        FileNameList.Add(new FileNames() { FromFile = file });
+                    }
                 }
 
                 this.MakeToFilesList();
@@ -136,6 +155,17 @@ namespace CopyFilesWithSpecifiedName
             }
  
             return result;
+        }
+
+        /// <summary>
+        /// コピー元ファイルのフィルタリング用拡張子のリストを作成</br>
+        /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
+        /// </summary>
+        /// <param name="ext">拡張子を記述した文字列</param>
+        public void SetExtensions(string ext)
+        {
+            var extList = ext.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            extensions = (extList.Length > 0) ? new List<string>(extList) : null;
         }
     }
 }

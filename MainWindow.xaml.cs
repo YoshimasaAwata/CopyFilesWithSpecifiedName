@@ -138,5 +138,16 @@ namespace CopyFilesWithSpecifiedName
             var about = new AboutBox();
             about.ShowDialog();
         }
+
+        /// <summary>
+        /// コピー元ファイルのフィルタリング用拡張子のリストを作成</br>
+        /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExtensionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            fileList.SetExtensions(ExtensionTextBox.Text);
+        }
     }
 }
