@@ -50,7 +50,7 @@ namespace CopyFilesWithSpecifiedName
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
                     var sourceDir = openFolderDialog.FileName;
-                    var rc = fileList.SetSourceDir(sourceDir);
+                    var rc = fileList.SetSourceDir(sourceDir, ExcludeCheck.IsChecked);
                     if (rc == FileList.Code.NG)
                     {
                         await this.ShowMessageAsync("エラー", fileList.Message);

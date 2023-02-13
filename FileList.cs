@@ -63,12 +63,35 @@ namespace CopyFilesWithSpecifiedName
         private List<string>? extensions = null;
 
         /// <summary>
+        /// 指定のファイル名を"FileNameList"に追加</br>
+        /// 指定により隠しファイルやシステムファイルは除外する
+        /// </summary>
+        /// <param name="file">追加するファイル名</param>
+        /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
+        protected void AddFromFile(string file, bool? exclude)
+        {
+            if (exclude == false)
+            {
+                FileNameList.Add(new FileNames() { FromFile = file });
+            }
+            else    // exclude == null or true
+            {
+                var attr = File.GetAttributes(file);
+                if ((attr & (FileAttributes.Hidden | FileAttributes.System)) == 0)
+                {
+                    FileNameList.Add(new FileNames() { FromFile = file });
+                }
+            }
+        }
+
+        /// <summary>
         /// ファイルのコピー元フォルダをセット</br>
         /// 同時にコピーするファイル名をリストに登録
         /// </summary>
         /// <param name="dir">ファイルのコピー元フォルダ名</param>
+        /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
         /// <returns>処理結果</returns>
-        public Code SetSourceDir(string dir)
+        public Code SetSourceDir(string dir, bool? exclude)
         {
             Code result = Code.OK;
 
@@ -85,7 +108,7 @@ namespace CopyFilesWithSpecifiedName
                         var ext = Path.GetExtension(file).Substring(1); // 最初の'.'を除く
                         if (extensions.Contains(ext))
                         {
-                            FileNameList.Add(new FileNames() { FromFile = file });
+                            AddFromFile(file, exclude);
                         }
                     }
                 }
@@ -93,7 +116,7 @@ namespace CopyFilesWithSpecifiedName
                 {
                     foreach (var file in files)
                     {
-                        FileNameList.Add(new FileNames() { FromFile = file });
+                        AddFromFile(file, exclude);
                     }
                 }
 
