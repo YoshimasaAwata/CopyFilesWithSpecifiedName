@@ -16,6 +16,7 @@
 | WindowsAPICodePack-Core | [Custom](https://github.com/aybe/Windows-API-Code-Pack-1.1/blob/master/LICENCE) |
 | WindowsAPICodePack-Shell | [Custom](https://github.com/aybe/Windows-API-Code-Pack-1.1/blob/master/LICENCE) |
 | MahApps.Metro | [MIT](https://github.com/MahApps/MahApps.Metro/blob/develop/LICENSE) |
+| MahApps.Metro.IconPacks | [MIT](https://github.com/MahApps/MahApps.Metro.IconPacks/blob/develop/LICENSE) |
 | ControlzEx | [MIT](https://github.com/ControlzEx/ControlzEx/blob/develop/LICENSE) |
 | Microsoft.Xaml.Behaviors.Wpf |[MIT](https://github.com/microsoft/XamlBehaviorsWpf/blob/master/LICENSE) |
 | System.Text.Json | [MIT](https://www.nuget.org/packages/System.Text.Json/4.7.2/license) |

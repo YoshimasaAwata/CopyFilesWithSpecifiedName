@@ -1,4 +1,5 @@
 ﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FromButton_Click(object sender, RoutedEventArgs e)
+        private async void FromButton_Click(object sender, RoutedEventArgs e)
         {
             using (var openFolderDialog = new CommonOpenFileDialog()
             {
@@ -52,7 +53,7 @@ namespace CopyFilesWithSpecifiedName
                     var rc = fileList.SetSourceDir(sourceDir);
                     if (rc == FileList.Code.NG)
                     {
-                        MessageBox.Show(fileList.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        await this.ShowMessageAsync("エラー", fileList.Message);
                     }
                     else
                     {
@@ -91,17 +92,17 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        private async void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             CopyButton.IsEnabled = false;
             var rc = fileList.CopyFiles();
             if (rc < 0)
             {
-                MessageBox.Show(fileList.Message);
+                await this.ShowMessageAsync("エラー", fileList.Message);
             }
             else
             {
-                MessageBox.Show("コピーしました。");
+                await this.ShowMessageAsync("コピー", "コピーしました。");
             }
             CopyButton.IsEnabled = true;
         }
