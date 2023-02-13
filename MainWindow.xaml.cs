@@ -149,5 +149,83 @@ namespace CopyFilesWithSpecifiedName
         {
             fileList.SetExtensions(ExtensionTextBox.Text);
         }
+
+        /// <summary>
+        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var enable = (FromListBox.SelectedIndex >= 0);
+
+            UpButton.IsEnabled = enable;
+            DownButton.IsEnabled = enable;
+            DeleteButton.IsEnabled = enable;
+
+            if (FromListBox.SelectedIndex == 0)
+            {
+                UpButton.IsEnabled = false;
+            }
+
+            if (FromListBox.SelectedIndex == (fileList.FileNameList.Count - 1))
+            {
+                DownButton.IsEnabled = false;
+            }
+        }
+
+        /// <summary>
+        /// "FromListBox"から選択したリストアイテムを削除</br>
+        /// 削除後にコピー先ファイル名を付けなおし、リスト表示をアップデート
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            fileList.DeleteElement(FromListBox.SelectedIndex);
+
+            FromListBox.Items.Refresh();
+            ToListBox.Items.Refresh();
+        }
+
+        /// <summary>
+        /// "FromListBox"から選択したリストアイテムを上に移動</br>
+        /// 移動後にコピー先ファイル名を付けなおし、リスト表示をアップデート
+        /// </summary>
+        /// <remarks>
+        /// 移動後のリストアイテムの位置によりボタンの有効化/無効化を指定
+        /// </remarks>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpButton_Click(object sender, RoutedEventArgs e)
+        {
+            fileList.UpElement(FromListBox.SelectedIndex);
+
+            FromListBox.Items.Refresh();
+            ToListBox.Items.Refresh();
+
+            UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
+            DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
+        }
+
+        /// <summary>
+        /// "FromListBox"から選択したリストアイテムを下に移動</br>
+        /// 移動後にコピー先ファイル名を付けなおし、リスト表示をアップデート
+        /// </summary>
+        /// <remarks>
+        /// 移動後のリストアイテムの位置によりボタンの有効化/無効化を指定
+        /// </remarks>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DownButton_Click(object sender, RoutedEventArgs e)
+        {
+            fileList.DownElement(FromListBox.SelectedIndex);
+
+            FromListBox.Items.Refresh();
+            ToListBox.Items.Refresh();
+
+            UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
+            DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
+        }
     }
 }

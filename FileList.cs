@@ -167,5 +167,53 @@ namespace CopyFilesWithSpecifiedName
             var extList = ext.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             extensions = (extList.Length > 0) ? new List<string>(extList) : null;
         }
+
+        /// <summary>
+        /// "FileNameList"から指定のインデックスの要素を削除</br>
+        /// 削除後にコピー先ファイル名を付けなおす
+        /// </summary>
+        /// <param name="index">削除する要素のインデックス</param>
+        public void DeleteElement(Int32 index)
+        {
+            if ((index >= 0) && (index < FileNameList.Count))
+            {
+                FileNameList.RemoveAt(index);
+                MakeToFilesList();
+            }
+        }
+
+        /// <summary>
+        /// "FileNameList"の指定のインデックスの要素を上に移動</br>
+        /// 移動後にコピー先ファイル名を付けなおす
+        /// </summary>
+        /// <remarks>
+        /// 先頭の要素は移動できないので何もしない
+        /// </remarks>
+        /// <param name="index">移動する要素のインデックス</param>
+        public void UpElement(Int32 index)
+        {
+            if ((index > 0) && (index < FileNameList.Count))
+            {
+                FileNameList.Move(index, (index - 1));
+                MakeToFilesList();
+            }
+        }
+
+        /// <summary>
+        /// "FileNameList"の指定のインデックスの要素を下に移動</br>
+        /// 移動後にコピー先ファイル名を付けなおす
+        /// </summary>
+        /// <remarks>
+        /// 最後の要素は移動できないので何もしない
+        /// </remarks>
+        /// <param name="index">移動する要素のインデックス</param>
+        public void DownElement(Int32 index)
+        {
+            if ((index >= 0) && (index < (FileNameList.Count - 1)))
+            {
+                FileNameList.Move(index, (index + 1));
+                MakeToFilesList();
+            }
+        }
     }
 }
