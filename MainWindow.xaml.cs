@@ -127,5 +127,11 @@ namespace CopyFilesWithSpecifiedName
             fileList.BaseFileName = FileNameTextBox.Text;
             ToListBox.Items.Refresh();
         }
+
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var about = new AboutBox();
+            about.ShowDialog();
+        }
     }
 }

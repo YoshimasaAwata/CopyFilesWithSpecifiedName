@@ -14,6 +14,11 @@
         FontFamily="{materialDesign:MaterialDesignFont}"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Title="CopyFilesWithSpecifiedName" Height="450" Width="800" ShowCloseButton="False">
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button x:Name="AboutButton" Content="About" Click="AboutButton_Click"/>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
