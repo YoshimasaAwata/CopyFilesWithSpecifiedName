@@ -26,12 +26,12 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         protected class Package
         {
-            /// <value>パッケージ名名</value>
-            public string Name { get; set; }
+            /// <value>パッケージ名</value>
+            public string Name { get; set; } = "";
             /// <value>パッケージのライセンス</value>
-            public string License { get; set; }
+            public string License { get; set; } = "";
             /// <value>パッケージのライセンスのURL</value>
-            public string Url { get; set; }
+            public string Url { get; set; } = "";
         }
 
         /// <value>使用しているNuGetパッケージのリスト</value>
@@ -75,16 +75,31 @@ namespace CopyFilesWithSpecifiedName
             }
         }
 
+        /// <summary>
+        /// パッケージ表示のListViewで選択したら警告表示をクリア
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PackageList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             AlartTextBox.Text = "";
         }
 
+        /// <summary>
+        /// About表示時にパッケージ表示のListViewのパッケージ名の列幅を計算
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             PackageColumn.Width = PackageList.ActualWidth - LicenseColumn.ActualWidth - SystemParameters.VerticalScrollBarWidth;
         }
 
+        /// <summary>
+        /// ライセンス表示ボタンをクリックしたらパッケージ表示のListViewで選択したパッケージのライセンスURLをブラウザで表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LicenseButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -107,6 +122,11 @@ namespace CopyFilesWithSpecifiedName
             }
         }
 
+        /// <summary>
+        /// AboutBoxをクローズ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
