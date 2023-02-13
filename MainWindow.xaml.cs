@@ -128,6 +128,11 @@ namespace CopyFilesWithSpecifiedName
             ToListBox.Items.Refresh();
         }
 
+        /// <summary>
+        /// AboutBoxを表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AboutButton_Click(object sender, RoutedEventArgs e)
         {
             var about = new AboutBox();
