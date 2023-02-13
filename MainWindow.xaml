@@ -12,6 +12,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Title="CopyFilesWithSpecifiedName" Height="450" Width="800" ShowCloseButton="False">
     <Grid>
         <Grid.RowDefinitions>
@@ -65,7 +66,19 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="CopyButton" Content=" ⇒ " Margin="5,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" IsEnabled="False" Click="CopyButton_Click"/>
-        <Button x:Name="CloseButton" Content="Close" Margin="0,5,5,5" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseButton_Click"/>
+        <Button x:Name="CopyButton" Margin="5,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" IsEnabled="False" Click="CopyButton_Click"
+        materialDesign:ButtonAssist.CornerRadius="25"
+         ToolTip="ファイルを指定の名前でコピーします。" ToolTipService.ShowOnDisabled="True" Cursor="">
+            <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="FileDocumentArrowRightOutline" />
+                <TextBlock Text="Copy"/>
+            </StackPanel>
+        </Button>
+        <Button x:Name="CloseButton" Margin="0,5,5,5" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseButton_Click">
+            <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconVaadinIcons Kind="Exit" />
+                <TextBlock Text="Exit"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </mah:MetroWindow>
