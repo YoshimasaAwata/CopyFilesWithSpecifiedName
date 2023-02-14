@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CopyFilesWithSpecifiedName
@@ -35,6 +36,8 @@ namespace CopyFilesWithSpecifiedName
             OK,
             /// <value>失敗</value>
             NG,
+            /// <value>キャンセル</value>
+            Cancel,
         }
 
         /// <value>フィルタリング用拡張子を複数指定する際の区切り文字</value>
@@ -61,6 +64,10 @@ namespace CopyFilesWithSpecifiedName
         }
         /// <value>フィルタリング用拡張子のリスト</value>
         private List<string>? extensions = null;
+        /// <value>ファイルコピーキャンセル用</value>
+        private CancellationTokenSource? tokenSource = null;
+        /// <value>ロック用オブジェクト</value>
+        private readonly object balanceLock = new object();
 
         /// <summary>
         /// 指定のファイル名を"FileNameList"に追加</br>
@@ -155,7 +162,12 @@ namespace CopyFilesWithSpecifiedName
 
             // コピー先フォルダの指定がない場合はコピー元フォルダにコピー
             var dir = (TargetDir == "") ? SourceDir : TargetDir;
-            
+
+            lock (balanceLock)
+            {
+                tokenSource = new CancellationTokenSource();
+            }
+
             foreach (var file in FileNameList)
             {
                 var targetFileName = Path.Join(dir, file.ToFile);
@@ -166,7 +178,7 @@ namespace CopyFilesWithSpecifiedName
                     {
                         using (var target = File.Open(targetFileName, FileMode.CreateNew))
                         {
-                            await source.CopyToAsync(target).ConfigureAwait(false);
+                            await source.CopyToAsync(target, tokenSource.Token).ConfigureAwait(false);
                         }
                     }
                 }
@@ -178,11 +190,17 @@ namespace CopyFilesWithSpecifiedName
                 catch (Exception e)
                 {
                     Message = e.Message;
-                    result = Code.NG;
+                    result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
                     break;
                 }
             }
- 
+
+            lock (balanceLock)
+            {
+                tokenSource.Dispose();
+                tokenSource = null;
+            }
+
             return result;
         }
 
@@ -242,6 +260,17 @@ namespace CopyFilesWithSpecifiedName
             {
                 FileNameList.Move(index, (index + 1));
                 MakeToFilesList();
+            }
+        }
+
+        /// <summary>
+        /// ファイルのコピーを中断
+        /// </summary>
+        public void CancelCopy()
+        {
+            lock (balanceLock)
+            {
+                tokenSource?.Cancel();
             }
         }
     }

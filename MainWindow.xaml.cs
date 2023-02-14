@@ -106,6 +106,10 @@ namespace CopyFilesWithSpecifiedName
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
             }
+            else if (rc == FileList.Code.Cancel)
+            {
+                await DialogHost.Show(new ErrorDialog("キャンセルされました。", ErrorDialog.Type.Warning));
+            }
             else
             {
                 await DialogHost.Show(new ErrorDialog("コピーしました。", ErrorDialog.Type.Info));
