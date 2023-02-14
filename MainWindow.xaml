@@ -71,7 +71,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox x:Name="ToListBox" Grid.Row="1" Grid.Column="2" Margin="5,5,5,5" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#4C03A9F4" BorderBrush="#FF03A9F4" BorderThickness="1,1,1,1" Loaded="ToListBox_Loaded">
+        <ListBox x:Name="ToListBox" Grid.Row="1" Grid.Column="2" Margin="5,5,5,5" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#4C03A9F4" BorderBrush="#FF03A9F4" BorderThickness="1,1,1,1" Loaded="ToListBox_Loaded" SelectionChanged="ToListBox_SelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->

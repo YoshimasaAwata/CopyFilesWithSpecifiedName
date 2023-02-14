@@ -156,7 +156,8 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う
+        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う</br>
+        /// 更に"ToListBox"の選択を"FromListBox"に反映
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -177,6 +178,18 @@ namespace CopyFilesWithSpecifiedName
             {
                 DownButton.IsEnabled = false;
             }
+
+            ToListBox.SelectedIndex = FromListBox.SelectedIndex;
+        }
+
+        /// <summary>
+        /// "ToListBox"の選択を"FromListBox"に反映
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FromListBox.SelectedIndex = ToListBox.SelectedIndex;
         }
 
         /// <summary>
