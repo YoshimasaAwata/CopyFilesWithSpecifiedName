@@ -101,8 +101,8 @@ namespace CopyFilesWithSpecifiedName
         private async void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             CopyButton.IsEnabled = false;
-            var rc = fileList.CopyFiles();
-            if (rc < 0)
+            var rc = await fileList.CopyFiles();
+            if (rc == FileList.Code.NG)
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
             }

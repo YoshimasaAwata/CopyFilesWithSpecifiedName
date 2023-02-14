@@ -149,7 +149,7 @@ namespace CopyFilesWithSpecifiedName
         /// "FileNameList"にリストアップされたコピー元ファイル名とコピー先ファイル名、コピー先フォルダ名を使いファイルをコピー
         /// </summary>
         /// <returns>処理結果</returns>
-        public Code CopyFiles()
+        public async Task<Code> CopyFiles()
         {
             Code result = Code.OK;
 
@@ -162,7 +162,13 @@ namespace CopyFilesWithSpecifiedName
 
                 try
                 {
-                    File.Copy(file.FromFile, targetFileName);
+                    using (var source = File.OpenRead(file.FromFile))
+                    {
+                        using (var target = File.Open(targetFileName, FileMode.CreateNew))
+                        {
+                            await source.CopyToAsync(target).ConfigureAwait(false);
+                        }
+                    }
                 }
                 catch (IOException)
                 {
