@@ -102,7 +102,7 @@ namespace CopyFilesWithSpecifiedName
         {
             CopyButton.IsEnabled = false;
             var rc = fileList.CopyFiles();
-            if (rc < 0)
+            if (rc == FileList.Code.NG)
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
             }
