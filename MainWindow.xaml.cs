@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using MaterialDesignThemes.Wpf;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -58,7 +59,7 @@ namespace CopyFilesWithSpecifiedName
                     var rc = fileList.SetSourceDir(sourceDir, ExcludeCheck.IsChecked);
                     if (rc == FileList.Code.NG)
                     {
-                        await this.ShowMessageAsync("エラー", fileList.Message);
+                        await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
                     }
                     else
                     {
@@ -103,11 +104,11 @@ namespace CopyFilesWithSpecifiedName
             var rc = fileList.CopyFiles();
             if (rc < 0)
             {
-                await this.ShowMessageAsync("エラー", fileList.Message);
+                await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
             }
             else
             {
-                await this.ShowMessageAsync("コピー", "コピーしました。");
+                await DialogHost.Show(new ErrorDialog("コピーしました。", ErrorDialog.Type.Info));
             }
             CopyButton.IsEnabled = true;
         }
