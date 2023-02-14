@@ -23,7 +23,12 @@ namespace CopyFilesWithSpecifiedName
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        private FileList fileList = new FileList();     // リストボックスに表示するファイル名のリスト
+        /// <value>リストボックスに表示するファイル名のリスト</value>
+        private FileList fileList = new FileList();
+        /// <value>Fromリストボックス内のScrollViewer</value>
+        private ScrollViewer? fromScrollViewer;
+        /// <value>Toリストボックス内のScrollViewer</value>
+        private ScrollViewer? toScrollViewer;
 
         public MainWindow()
         {
@@ -151,7 +156,8 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う
+        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う</br>
+        /// 更に"ToListBox"の選択を"FromListBox"に反映
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -172,6 +178,18 @@ namespace CopyFilesWithSpecifiedName
             {
                 DownButton.IsEnabled = false;
             }
+
+            ToListBox.SelectedIndex = FromListBox.SelectedIndex;
+        }
+
+        /// <summary>
+        /// "ToListBox"の選択を"FromListBox"に反映
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FromListBox.SelectedIndex = ToListBox.SelectedIndex;
         }
 
         /// <summary>
@@ -226,6 +244,88 @@ namespace CopyFilesWithSpecifiedName
 
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
             DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
+        }
+
+        /// <summary>
+        /// 渡されたコントロールの指定のタイプの子コントロールを取得
+        /// </summary>
+        /// <typeparam name="T">取得する子コントロールのタイプ</typeparam>
+        /// <param name="dependencyObject">親コントロール</param>
+        /// <returns>指定のタイプの子コントロールもしくはnull</returns>
+        private T? GetDependencyObject<T> (DependencyObject dependencyObject) where T : DependencyObject
+        {
+            T? obj = null;
+            if (dependencyObject != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(dependencyObject); i++)
+                {
+                    var child = VisualTreeHelper.GetChild(dependencyObject, i);
+                    obj = (child as T) ?? GetDependencyObject<T>(child);
+                    if (obj != null)
+                    {
+                        break;
+                    }
+                }
+            }
+            return obj;
+        }
+
+        /// <summary>
+        /// "FromListBox"内のScrollViewerがスクロールした際のイベントハンドラ</br>
+        /// "FromListBox"のスクロール量を"ToListBox"に反映
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FromListBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if ((toScrollViewer != null) && (fromScrollViewer != null))
+            {
+                toScrollViewer.ScrollToVerticalOffset(fromScrollViewer.VerticalOffset);
+            }
+        }
+
+        /// <summary>
+        /// "ToListBox"内のScrollViewerがスクロールした際のイベントハンドラ</br>
+        /// "ToListBox"のスクロール量を"FromListBox"に反映
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToListBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if ((fromScrollViewer != null) && (toScrollViewer != null))
+            {
+                fromScrollViewer.ScrollToVerticalOffset(toScrollViewer.VerticalOffset);
+            }
+        }
+
+        /// <summary>
+        /// "FromListBox"の描画終了時のイベントハンドラ</br>
+        /// "FromListBox"内のScrollViewrを取得すると共にScrollChangedイベントハンドラを追加
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FromListBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            fromScrollViewer = GetDependencyObject<ScrollViewer>(FromListBox);
+            if (fromScrollViewer != null)
+            {
+                fromScrollViewer.ScrollChanged += new ScrollChangedEventHandler(FromListBox_ScrollChanged);
+            }
+        }
+
+        /// <summary>
+        /// "ToListBox"の描画終了時のイベントハンドラ</br>
+        /// "ToListBox"内のScrollViewrを取得すると共にScrollChangedイベントハンドラを追加
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToListBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            toScrollViewer = GetDependencyObject<ScrollViewer>(ToListBox);
+            if (toScrollViewer != null)
+            {
+                toScrollViewer.ScrollChanged += new ScrollChangedEventHandler(ToListBox_ScrollChanged);
+            }
         }
     }
 }
