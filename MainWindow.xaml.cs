@@ -101,19 +101,35 @@ namespace CopyFilesWithSpecifiedName
         private async void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             CopyButton.IsEnabled = false;
-            var rc = await fileList.CopyFiles();
-            if (rc == FileList.Code.NG)
+
+            var progress = new FileCopyProgress();
+            var copyTask = fileList.CopyFiles(progress);
+            var progressTask = DialogHost.Show(progress);
+
+            var taskDone = await Task.WhenAny(copyTask, progressTask);
+
+            if (taskDone == progressTask)
             {
-                await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
-            }
-            else if (rc == FileList.Code.Cancel)
-            {
+                fileList.CancelCopy();
+                await copyTask;
                 await DialogHost.Show(new ErrorDialog("キャンセルされました。", ErrorDialog.Type.Warning));
             }
             else
             {
-                await DialogHost.Show(new ErrorDialog("コピーしました。", ErrorDialog.Type.Info));
+                DialogHost.Close(null);
+                await progressTask;
+
+                var rc = copyTask.Result;
+                if (rc == FileList.Code.NG)
+                {
+                    await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
+                }
+                else
+                {
+                    await DialogHost.Show(new ErrorDialog("コピーしました。", ErrorDialog.Type.Info));
+                }
             }
+
             CopyButton.IsEnabled = true;
         }
 

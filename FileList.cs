@@ -155,10 +155,12 @@ namespace CopyFilesWithSpecifiedName
         /// <summary>
         /// "FileNameList"にリストアップされたコピー元ファイル名とコピー先ファイル名、コピー先フォルダ名を使いファイルをコピー
         /// </summary>
+        /// <param name="progress">プログレスバーダイアログ</param>
         /// <returns>処理結果</returns>
-        public async Task<Code> CopyFiles()
+        public async Task<Code> CopyFiles(FileCopyProgress progress)
         {
             Code result = Code.OK;
+            int fileCount = 0;
 
             // コピー先フォルダの指定がない場合はコピー元フォルダにコピー
             var dir = (TargetDir == "") ? SourceDir : TargetDir;
@@ -171,6 +173,8 @@ namespace CopyFilesWithSpecifiedName
             foreach (var file in FileNameList)
             {
                 var targetFileName = Path.Join(dir, file.ToFile);
+
+                progress.SetFileNameProgress(Path.GetFileName(file.FromFile), (++fileCount * 100 / FileNameList.Count));
 
                 try
                 {
