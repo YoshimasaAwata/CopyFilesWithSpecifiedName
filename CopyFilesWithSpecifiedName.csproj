@@ -5,7 +5,16 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>filecopy.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="filecopy.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.9" />
