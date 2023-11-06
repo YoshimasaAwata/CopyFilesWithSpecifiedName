@@ -20,7 +20,7 @@
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
     <materialDesign:DialogHost>
-        <Grid>
+        <Grid x:Name="OverallGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
@@ -45,8 +45,8 @@
             </DockPanel>
             <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5,0,10,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
                 <DockPanel Cursor="" LastChildFill="True">
                     <Label Content="共通ファイル名 : " DockPanel.Dock="Left" VerticalAlignment="Center"/>
@@ -54,9 +54,19 @@
                 </DockPanel>
                 <DockPanel LastChildFill="True" Grid.Column="1">
                     <Label Content="開始番号: " VerticalAlignment="Center"/>
-                    <ComboBox x:Name="DigitsComboBox" DockPanel.Dock="Right" Padding="5,4,0,4"/>
+                    <ComboBox x:Name="DigitsComboBox" DockPanel.Dock="Right" Padding="5,4,0,4" SelectionChanged="DigitsComboBox_SelectionChanged">
+                        <ComboBoxItem Content="1" IsSelected="True"/>
+                        <ComboBoxItem Content="2"/>
+                        <ComboBoxItem Content="3"/>
+                        <ComboBoxItem Content="4"/>
+                        <ComboBoxItem Content="5"/>
+                        <ComboBoxItem Content="6"/>
+                        <ComboBoxItem Content="7"/>
+                        <ComboBoxItem Content="8"/>
+                        <ComboBoxItem Content="9"/>
+                    </ComboBox>
                     <Label Content="桁数: " DockPanel.Dock="Right" VerticalAlignment="Center"/>
-                    <TextBox x:Name="StartNumTextBox" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <TextBox x:Name="StartNumTextBox" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" HorizontalContentAlignment="Right" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="StartNumTextBox_PreviewTextInput" CommandManager.PreviewExecuted="StartNumTextBox_PreviewExecuted" TextChanged="StartNumTextBox_TextChanged"/>
                 </DockPanel>
             </Grid>
             <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="1" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged" Loaded="FromListBox_Loaded">
@@ -114,6 +124,14 @@
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" />
                         <TextBlock Text="Delete"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ClearButton" IsEnabled="False"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="ファイルリストをクリアします" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10" Click="ClearButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ClearBoxOutline" />
+                        <TextBlock Text="Clear"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

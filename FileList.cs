@@ -11,7 +11,7 @@ namespace CopyFilesWithSpecifiedName
 {
 
     /// <summary>
-    /// コピー元およびコピー先のファイル名のリストの管理</br>
+    /// コピー元およびコピー先のファイル名のリストの管理<br/>
     /// 実際のファイルのコピーも行う
     /// </summary>
     internal class FileList
@@ -41,7 +41,7 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <value>フィルタリング用拡張子を複数指定する際の区切り文字</value>
-        private static readonly char[] Delimiter = { ',', ' ', '.', ';', ':' };
+        private static readonly char[] s_delimiter = { ',', ' ', '.', ';', ':' };
 
         /// <value>コピー元およびコピー先のファイル名のリスト</value>
         public ObservableCollection<FileNames> FileNameList { get; } = new ObservableCollection<FileNames>();
@@ -57,6 +57,15 @@ namespace CopyFilesWithSpecifiedName
             get { return _baseFileName; } 
             set 
             { 
+                var index = value.IndexOf('?');
+                if (index >= 0)
+                {
+                    value = value.Replace("?", $"{{0:d{Digit}}}");
+                }
+                else
+                {
+                    value += $"{{0:d{Digit}}}";
+                }
                 _baseFileName = value;
                 this.MakeToFilesList();     // 変更の度にファイル名リストを更新
             } 
@@ -67,9 +76,13 @@ namespace CopyFilesWithSpecifiedName
         private CancellationTokenSource? _tokenSource = null;
         /// <value>ロック用オブジェクト</value>
         private readonly object _balanceLock = new object();
+        /// <value>連番の最小桁数</value>
+        public int Digit { get; set; } = 1;
+        /// <value>連番のスタートの値</value>
+        public int StartNum { get; set; } = 0;
 
         /// <summary>
-        /// 指定のファイル名を"FileNameList"に追加</br>
+        /// 指定のファイル名を"FileNameList"に追加<br/>
         /// 指定により隠しファイルやシステムファイルは除外する
         /// </summary>
         /// <param name="file">追加するファイル名</param>
@@ -91,20 +104,18 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// コピー元ファイルをセット</br>
+        /// コピー元ファイルをセット<br/>
         /// 同時にコピーするファイル名をリストに登録
         /// </summary>
         /// <param name="dir">ファイルのコピー元フォルダ名</param>
         /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
         /// <returns>処理結果</returns>
-        public Code SetSourceFiles(IEnumerable<string> files, bool exclude)
+        public Code AddSourceFiles(IEnumerable<string> files, bool exclude)
         {
             Code result = Code.OK;
 
             try
             {
-                FileNameList.Clear();
-
                 if ((_extensions != null) && (_extensions.Count > 0))
                 {
                     foreach (var file in files)
@@ -140,12 +151,12 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         protected void MakeToFilesList()
         {
-            int num = 0;
+            int num = StartNum;
             foreach (var file in FileNameList)
             {
                 var ext = Path.GetExtension(file.FromFile);
-                var newFileName = $"{_baseFileName}{num++:d3}{ext}";
-                file.ToFile = newFileName;
+                var newFileName = String.Format(_baseFileName, num);
+                file.ToFile = newFileName + ext;
             }
         }
 
@@ -206,18 +217,18 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// コピー元ファイルのフィルタリング用拡張子のリストを作成</br>
+        /// コピー元ファイルのフィルタリング用拡張子のリストを作成<br/>
         /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
         /// </summary>
         /// <param name="ext">拡張子を記述した文字列</param>
         public void SetExtensions(string ext)
         {
-            var extList = ext.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var extList = ext.Split(s_delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             _extensions = (extList.Length > 0) ? new List<string>(extList) : null;
         }
 
         /// <summary>
-        /// "FileNameList"から指定のインデックスの要素を削除</br>
+        /// "FileNameList"から指定のインデックスの要素を削除<br/>
         /// 削除後にコピー先ファイル名を付けなおす
         /// </summary>
         /// <param name="index">削除する要素のインデックス</param>
@@ -231,7 +242,15 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// "FileNameList"の指定のインデックスの要素を上に移動</br>
+        /// "FileNameList"の全要素を削除
+        /// </summary>
+        public void ClearElements()
+        {
+            FileNameList.Clear();
+        }
+
+        /// <summary>
+        /// "FileNameList"の指定のインデックスの要素を上に移動<br/>
         /// 移動後にコピー先ファイル名を付けなおす
         /// </summary>
         /// <remarks>
@@ -248,7 +267,7 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// "FileNameList"の指定のインデックスの要素を下に移動</br>
+        /// "FileNameList"の指定のインデックスの要素を下に移動<br/>
         /// 移動後にコピー先ファイル名を付けなおす
         /// </summary>
         /// <remarks>
