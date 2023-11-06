@@ -45,7 +45,7 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void FromButton_Click(object sender, RoutedEventArgs e)
+        private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
             using (var openFolderDialog = new CommonOpenFileDialog()
             {
