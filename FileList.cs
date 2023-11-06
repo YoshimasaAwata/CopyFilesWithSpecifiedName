@@ -49,25 +49,24 @@ namespace CopyFilesWithSpecifiedName
         public string Message { get; private set; } = "";
         /// <value>ファイルのコピー先フォルダ名</value>
         public string TargetDir { get; set; } = "";
-        /// <value>ファイルのコピー元フォルダ名</value>
-        public string SourceDir { get; private set; } = "";
-        private string baseFileName = "new-file-name";
+        /// <value>元となるファイル名</value>
+        private string _baseFileName = "new-file-name";
         /// <value>コピー先ファイル名の共通部分</value>
         public string BaseFileName 
         { 
-            get { return baseFileName; } 
+            get { return _baseFileName; } 
             set 
             { 
-                baseFileName = value;
+                _baseFileName = value;
                 this.MakeToFilesList();     // 変更の度にファイル名リストを更新
             } 
         }
         /// <value>フィルタリング用拡張子のリスト</value>
-        private List<string>? extensions = null;
+        private List<string>? _extensions = null;
         /// <value>ファイルコピーキャンセル用</value>
-        private CancellationTokenSource? tokenSource = null;
+        private CancellationTokenSource? _tokenSource = null;
         /// <value>ロック用オブジェクト</value>
-        private readonly object balanceLock = new object();
+        private readonly object _balanceLock = new object();
 
         /// <summary>
         /// 指定のファイル名を"FileNameList"に追加</br>
@@ -75,13 +74,13 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="file">追加するファイル名</param>
         /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
-        protected void AddFromFile(string file, bool? exclude)
+        protected void AddFromFile(string file, bool exclude)
         {
-            if (exclude == false)
+            if (!exclude)
             {
                 FileNameList.Add(new FileNames() { FromFile = file });
             }
-            else    // exclude == null or true
+            else    // exclude == true
             {
                 var attr = File.GetAttributes(file);
                 if ((attr & (FileAttributes.Hidden | FileAttributes.System)) == 0)
@@ -92,28 +91,26 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
-        /// ファイルのコピー元フォルダをセット</br>
+        /// コピー元ファイルをセット</br>
         /// 同時にコピーするファイル名をリストに登録
         /// </summary>
         /// <param name="dir">ファイルのコピー元フォルダ名</param>
         /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
         /// <returns>処理結果</returns>
-        public Code SetSourceDir(string dir, bool? exclude)
+        public Code SetSourceFiles(IEnumerable<string> files, bool exclude)
         {
             Code result = Code.OK;
 
             try
             {
-                var files = Directory.GetFiles(dir);
-                SourceDir = dir;
                 FileNameList.Clear();
 
-                if ((extensions != null) && (extensions.Count > 0))
+                if ((_extensions != null) && (_extensions.Count > 0))
                 {
                     foreach (var file in files)
                     {
                         var ext = Path.GetExtension(file).Substring(1); // 最初の'.'を除く
-                        if (extensions.Contains(ext))
+                        if (_extensions.Contains(ext))
                         {
                             AddFromFile(file, exclude);
                         }
@@ -127,7 +124,7 @@ namespace CopyFilesWithSpecifiedName
                     }
                 }
 
-                this.MakeToFilesList();
+                MakeToFilesList();
             }
             catch (Exception e)
             {
@@ -147,7 +144,7 @@ namespace CopyFilesWithSpecifiedName
             foreach (var file in FileNameList)
             {
                 var ext = Path.GetExtension(file.FromFile);
-                var newFileName = $"{baseFileName}{num++:d3}{ext}";
+                var newFileName = $"{_baseFileName}{num++:d3}{ext}";
                 file.ToFile = newFileName;
             }
         }
@@ -162,12 +159,12 @@ namespace CopyFilesWithSpecifiedName
             Code result = Code.OK;
             int fileCount = 0;
 
-            // コピー先フォルダの指定がない場合はコピー元フォルダにコピー
-            var dir = (TargetDir == "") ? SourceDir : TargetDir;
+            // コピー先フォルダの指定がない場合はHOMEPATHに指定されたフォルダにコピー
+            var dir = (TargetDir == "") ? Environment.GetEnvironmentVariable("HOMEPATH") : TargetDir;
 
-            lock (balanceLock)
+            lock (_balanceLock)
             {
-                tokenSource = new CancellationTokenSource();
+                _tokenSource = new CancellationTokenSource();
             }
 
             foreach (var file in FileNameList)
@@ -182,7 +179,7 @@ namespace CopyFilesWithSpecifiedName
                     {
                         using (var target = File.Open(targetFileName, FileMode.CreateNew))
                         {
-                            await source.CopyToAsync(target, tokenSource.Token).ConfigureAwait(false);
+                            await source.CopyToAsync(target, _tokenSource.Token).ConfigureAwait(false);
                         }
                     }
                 }
@@ -194,15 +191,15 @@ namespace CopyFilesWithSpecifiedName
                 catch (Exception e)
                 {
                     Message = e.Message;
-                    result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
+                    result = _tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
                     break;
                 }
             }
 
-            lock (balanceLock)
+            lock (_balanceLock)
             {
-                tokenSource.Dispose();
-                tokenSource = null;
+                _tokenSource.Dispose();
+                _tokenSource = null;
             }
 
             return result;
@@ -216,7 +213,7 @@ namespace CopyFilesWithSpecifiedName
         public void SetExtensions(string ext)
         {
             var extList = ext.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            extensions = (extList.Length > 0) ? new List<string>(extList) : null;
+            _extensions = (extList.Length > 0) ? new List<string>(extList) : null;
         }
 
         /// <summary>
@@ -272,9 +269,9 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         public void CancelCopy()
         {
-            lock (balanceLock)
+            lock (_balanceLock)
             {
-                tokenSource?.Cancel();
+                _tokenSource?.Cancel();
             }
         }
     }

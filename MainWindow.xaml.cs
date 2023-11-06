@@ -47,16 +47,18 @@ namespace CopyFilesWithSpecifiedName
         /// <param name="e"></param>
         private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
+            bool excludeHiddenFIles = (ExcludeCheck.IsChecked == null) ? false : (!(bool)ExcludeCheck.IsChecked);
             using (var openFolderDialog = new CommonOpenFileDialog()
             {
-                Title = "コピー元フォルダを選択してください",
-                IsFolderPicker = true,
+                Title = "コピー元ファイルを選択してください",
+                Multiselect = true,
+                ShowHiddenItems = excludeHiddenFIles,
             })
             {
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    var sourceDir = openFolderDialog.FileName;
-                    var rc = fileList.SetSourceDir(sourceDir, ExcludeCheck.IsChecked);
+                    var sourceFiles = openFolderDialog.FileNames;
+                    var rc = fileList.SetSourceFiles(sourceFiles, excludeHiddenFIles);
                     if (rc == FileList.Code.NG)
                     {
                         await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
