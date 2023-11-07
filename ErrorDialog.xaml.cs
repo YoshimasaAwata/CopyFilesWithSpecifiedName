@@ -33,9 +33,22 @@ namespace CopyFilesWithSpecifiedName
             Info,
         }
 
+        /// <summary>
+        /// ダイアログのボタン
+        /// </summary>
+        public enum Buttons
+        {
+            /// <value>OKのみ</value>
+            Ok,
+            /// <value>OKとCancel</value>
+            OkCancel,
+            /// <value>YesとNo</value>
+            YesNo,
+        }
+
         /// <param name="message">ダイアログに表示するメッセージ</param>
         /// <param name="type">ダイアログのタイプ</param>
-        public ErrorDialog(string message, Type type = Type.Error)
+        public ErrorDialog(string message, Type type = Type.Error, Buttons bottons = Buttons.Ok)
         {
             InitializeComponent();
 
@@ -52,6 +65,17 @@ namespace CopyFilesWithSpecifiedName
             else
             {
                 ErrorPanel.Visibility = Visibility.Visible;
+            }
+
+            if (bottons == Buttons.OkCancel)
+            {
+                CancelButton.Visibility = Visibility.Visible;
+            }
+            else if (bottons == Buttons.YesNo) 
+            {
+                CancelButton.Visibility = Visibility.Visible;
+                OKButton.Content = "Yes";
+                CancelButton.Content = "No";
             }
         }
     }

@@ -263,19 +263,25 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        private async void ClearButton_Click(object sender, RoutedEventArgs e)
         {
-            _fileList.ClearElements();
+            var dialog = new ErrorDialog("全てのファイルをリストから削除しますがよろしいですか?", ErrorDialog.Type.Warning, ErrorDialog.Buttons.OkCancel);
+            var rc = await DialogHost.Show(dialog) as bool?;
 
-            FromListBox.Items.Refresh();
-            ToListBox.Items.Refresh();
+            if ((rc != null) && (rc == true))
+            {
+                _fileList.ClearElements();
 
-            DeleteButton.IsEnabled = false;
-            ClearButton.IsEnabled = false;
-            CopyButton.IsEnabled = false;
-            UpButton.IsEnabled = false;
-            DownButton.IsEnabled = false;
-            FilterButton.IsEnabled = false;
+                FromListBox.Items.Refresh();
+                ToListBox.Items.Refresh();
+
+                DeleteButton.IsEnabled = false;
+                ClearButton.IsEnabled = false;
+                CopyButton.IsEnabled = false;
+                UpButton.IsEnabled = false;
+                DownButton.IsEnabled = false;
+                FilterButton.IsEnabled = false;
+            }
         }
 
         /// <summary>
@@ -455,12 +461,25 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        private async void FilterButton_Click(object sender, RoutedEventArgs e)
         {
-            _fileList.FilteringFromList();
+            var dialog = new ErrorDialog("指定以外の拡張子のファイルをリストから削除しますがよろしいですか?", ErrorDialog.Type.Warning, ErrorDialog.Buttons.OkCancel);
+            var rc = await DialogHost.Show(dialog) as bool?;
 
-            FromListBox?.Items.Refresh();
-            ToListBox?.Items.Refresh();
+            if ((rc != null) && (rc == true))
+            {
+                _fileList.FilteringFromList();
+
+                FromListBox?.Items.Refresh();
+                ToListBox?.Items.Refresh();
+
+                if (_fileList.FileNameList.Count <= 0)
+                {
+                    DeleteButton.IsEnabled = false;
+                    ClearButton.IsEnabled = false;
+                    FilterButton.IsEnabled = false;
+                }
+            }
         }
 
         private void FromListBox_DragOver(object sender, DragEventArgs e)
