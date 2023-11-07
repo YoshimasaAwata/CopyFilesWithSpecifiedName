@@ -36,6 +36,7 @@
             <Label Content="コピー先ファイル名:" VerticalAlignment="Center" Grid.Column="2"/>
             <DockPanel Grid.Row="3" LastChildFill="True" Margin="10,0,0,0" Grid.ColumnSpan="2" >
                 <CheckBox x:Name="ExcludeCheck" Content="隠しファイル / システムファイル除外" IsChecked="True" FlowDirection="RightToLeft" HorizontalAlignment="Right" VerticalAlignment="Center" DockPanel.Dock="Right"/>
+                <Button x:Name="FilterButton" Content="Filter" DockPanel.Dock="Left" Margin="0,5,0,5" ToolTip="拡張子でリストをフィルタリング" IsEnabled="False" Click="FilterButton_Click" />
                 <Label Content="拡張子 : " DockPanel.Dock="Left" VerticalAlignment="Center"/>
                 <TextBox x:Name="ExtensionTextBox" TextWrapping="Wrap" TextChanged="ExtensionTextBox_TextChanged" VerticalAlignment="Center"/>
             </DockPanel>

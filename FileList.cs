@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,28 +49,9 @@ namespace CopyFilesWithSpecifiedName
         /// <value>エラー等のメッセージ</value>
         public string Message { get; private set; } = "";
         /// <value>ファイルのコピー先フォルダ名</value>
-        public string TargetDir { get; set; } = "";
-        /// <value>元となるファイル名</value>
-        private string _baseFileName = "new-file-name";
+        public string TargetDir { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         /// <value>コピー先ファイル名の共通部分</value>
-        public string BaseFileName 
-        { 
-            get { return _baseFileName; } 
-            set 
-            { 
-                var index = value.IndexOf('?');
-                if (index >= 0)
-                {
-                    value = value.Replace("?", $"{{0:d{Digit}}}");
-                }
-                else
-                {
-                    value += $"{{0:d{Digit}}}";
-                }
-                _baseFileName = value;
-                this.MakeToFilesList();     // 変更の度にファイル名リストを更新
-            } 
-        }
+        public string BaseFileName { get; private set; } = "{0:d1}";
         /// <value>フィルタリング用拡張子のリスト</value>
         private List<string>? _extensions = null;
         /// <value>ファイルコピーキャンセル用</value>
@@ -77,9 +59,9 @@ namespace CopyFilesWithSpecifiedName
         /// <value>ロック用オブジェクト</value>
         private readonly object _balanceLock = new object();
         /// <value>連番の最小桁数</value>
-        public int Digit { get; set; } = 1;
+        public int Digit { get; private set; } = 1;
         /// <value>連番のスタートの値</value>
-        public int StartNum { get; set; } = 0;
+        public int StartNum { get; private set; } = 0;
 
         /// <summary>
         /// 指定のファイル名を"FileNameList"に追加<br/>
@@ -155,8 +137,9 @@ namespace CopyFilesWithSpecifiedName
             foreach (var file in FileNameList)
             {
                 var ext = Path.GetExtension(file.FromFile);
-                var newFileName = String.Format(_baseFileName, num);
+                var newFileName = String.Format(BaseFileName, num);
                 file.ToFile = newFileName + ext;
+                num++;
             }
         }
 
@@ -228,6 +211,15 @@ namespace CopyFilesWithSpecifiedName
         }
 
         /// <summary>
+        /// 拡張子のリストが要素を持っているか確認
+        /// </summary>
+        /// <returns>要素を持っていればtrue</returns>
+        public bool HasExtensions()
+        {
+            return ((_extensions != null) && (_extensions.Count > 0));
+        }
+
+        /// <summary>
         /// "FileNameList"から指定のインデックスの要素を削除<br/>
         /// 削除後にコピー先ファイル名を付けなおす
         /// </summary>
@@ -291,6 +283,78 @@ namespace CopyFilesWithSpecifiedName
             lock (_balanceLock)
             {
                 _tokenSource?.Cancel();
+            }
+        }
+
+        /// <summary>
+        /// 連番の開始番号をセット<br/>
+        /// コピー先ファイル名は付けなおし
+        /// </summary>
+        /// <param name="num">連番の開始番号</param>
+        public void SetStartNum(int num)
+        {
+            StartNum = num;
+            MakeToFilesList();
+        }
+
+        /// <summary>
+        /// 連番の桁数をセット<br/>
+        /// コピー先ファイル名は付けなおし
+        /// </summary>
+        /// <param name="num">連番の桁数</param>
+        public void SetDigit(int num)
+        {
+            Digit = num;
+
+            var reg = new Regex("{0:d[0-9]}");
+            BaseFileName = reg.Replace(BaseFileName, $"{{0:d{Digit}}}");
+            MakeToFilesList();
+        }
+
+        /// <summary>
+        /// コピー先の共通ファイル名をセット
+        /// </summary>
+        /// <remarks>
+        /// 共通ファイル名には?もしくは文末を連番と置き換えるためのフォーマット部分を追加
+        /// </remarks>
+        /// <param name="fileName"></param>
+        public void SetBaseFileName(string fileName)
+        {
+            var index = fileName.IndexOf('?');
+            if (index >= 0)
+            {
+                fileName = fileName.Replace("?", $"{{0:d{Digit}}}");
+            }
+            else
+            {
+                fileName += $"{{0:d{Digit}}}";
+            }
+            BaseFileName = fileName;
+            MakeToFilesList();
+        }
+
+        /// <summary>
+        /// 指定した拡張子以外のコピー元ファイルを削除
+        /// </summary>
+        public void FilteringFromList()
+        {
+            if ((_extensions != null) && (_extensions.Count > 0))
+            {
+                var removeList = new List<FileNames>();
+                foreach (var file in FileNameList)
+                {
+                    var ext = Path.GetExtension(file.FromFile).Substring(1);    // 先頭の'.'は除く
+                    var contain = _extensions.Contains(ext);
+                    if (!contain)
+                    {
+                        removeList.Add(file);
+                    }
+                }
+                foreach (var file in removeList)
+                {
+                    FileNameList.Remove(file);
+                }
+                MakeToFilesList();
             }
         }
     }

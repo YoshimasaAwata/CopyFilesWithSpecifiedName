@@ -40,7 +40,8 @@ namespace CopyFilesWithSpecifiedName
 
             FromListBox.ItemsSource = _fileList.FileNameList;
             ToListBox.ItemsSource = _fileList.FileNameList;
-            FileNameTextBox.Text = _fileList.BaseFileName;
+            FileNameTextBox.Text = "new-file-name";
+            ToTextBox.Text = _fileList.TargetDir;
         }
 
         /// <summary>
@@ -66,13 +67,11 @@ namespace CopyFilesWithSpecifiedName
                     {
                         await DialogHost.Show(new ErrorDialog(_fileList.Message, ErrorDialog.Type.Error));
                     }
-                    else
-                    {
-                        // コピーするファイルがない場合はCopyボタンやクリアボタンが無効
-                        var enable = (_fileList.FileNameList.Count > 0);
-                        CopyButton.IsEnabled = enable;
-                        ClearButton.IsEnabled = enable;
-                    }
+                    // コピーするファイルがない場合はCopyボタンやクリアボタン、フィルタリングボタンが無効
+                    var enable = (_fileList.FileNameList.Count > 0);
+                    CopyButton.IsEnabled = enable;
+                    ClearButton.IsEnabled = enable;
+                    FilterButton.IsEnabled = _fileList.HasExtensions() && enable;
                 }
             }
         }
@@ -159,7 +158,7 @@ namespace CopyFilesWithSpecifiedName
             string fileName = FileNameTextBox.Text;
             if (fileName.IndexOfAny(s_forbidden) < 0)
             {
-                _fileList.BaseFileName = FileNameTextBox.Text;
+                _fileList.SetBaseFileName(FileNameTextBox.Text);
                 ToListBox.Items.Refresh();
             }
             else
@@ -189,6 +188,7 @@ namespace CopyFilesWithSpecifiedName
         private void ExtensionTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             _fileList.SetExtensions(ExtensionTextBox.Text);
+            FilterButton.IsEnabled = (_fileList.HasExtensions() && (_fileList.FileNameList.Count > 0)); 
         }
 
         /// <summary>
@@ -245,6 +245,7 @@ namespace CopyFilesWithSpecifiedName
             {
                 DeleteButton.IsEnabled = false;
                 ClearButton.IsEnabled = false;
+                FilterButton.IsEnabled = false;
             }
         }
 
@@ -266,6 +267,7 @@ namespace CopyFilesWithSpecifiedName
             CopyButton.IsEnabled = false;
             UpButton.IsEnabled = false;
             DownButton.IsEnabled = false;
+            FilterButton.IsEnabled = false;
         }
 
         /// <summary>
@@ -421,10 +423,10 @@ namespace CopyFilesWithSpecifiedName
         /// <param name="e"></param>
         private void StartNumTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            _fileList.StartNum = int.Parse(StartNumTextBox.Text);
+            var num = (StartNumTextBox.Text == "") ? 0 : int.Parse(StartNumTextBox.Text);
+            _fileList.SetStartNum(num);
 
-            FromListBox.Items.Refresh();
-            ToListBox.Items.Refresh();
+            ToListBox?.Items.Refresh();
         }
 
         /// <summary>
@@ -435,10 +437,22 @@ namespace CopyFilesWithSpecifiedName
         /// <param name="e"></param>
         private void DigitsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _fileList.Digit = DigitsComboBox.SelectedIndex + 1;
+            _fileList.SetDigit(DigitsComboBox.SelectedIndex + 1);
 
-            FromListBox.Items.Refresh();
-            ToListBox.Items.Refresh();
+            ToListBox?.Items.Refresh();
+        }
+
+        /// <summary>
+        /// 拡張子でコピー元リストのフィルタリング
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            _fileList.FilteringFromList();
+
+            FromListBox?.Items.Refresh();
+            ToListBox?.Items.Refresh();
         }
     }
 }
