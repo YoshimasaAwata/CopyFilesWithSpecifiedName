@@ -4,6 +4,7 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -44,34 +45,41 @@ namespace CopyFilesWithSpecifiedName
             ToTextBox.Text = _fileList.TargetDir;
         }
 
+        private async void AddFiles(IEnumerable<string>? files, bool? exclude)
+        {
+            if ((files != null) && (files.Count<string>() > 0))
+            {
+                var rc = _fileList.AddSourceFiles(files, exclude);
+                if (rc == FileList.Code.NG)
+                {
+                    await DialogHost.Show(new ErrorDialog(_fileList.Message, ErrorDialog.Type.Error));
+                }
+                // コピーするファイルがない場合はCopyボタンやクリアボタン、フィルタリングボタンが無効
+                var enable = (_fileList.FileNameList.Count > 0);
+                CopyButton.IsEnabled = enable;
+                ClearButton.IsEnabled = enable;
+                FilterButton.IsEnabled = _fileList.HasExtensions() && enable;
+            }
+        }
+
         /// <summary>
         /// ファイル選択ダイアログボックスを表示してコピー元フォルダを選択
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void AddButton_Click(object sender, RoutedEventArgs e)
+        private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            bool excludeHiddenFIles = (ExcludeCheck.IsChecked == null) ? false : (!(bool)ExcludeCheck.IsChecked);
+            bool excludeHiddenFiles = (ExcludeCheck.IsChecked == null) ? false : (!(bool)ExcludeCheck.IsChecked);
             using (var openFolderDialog = new CommonOpenFileDialog()
             {
                 Title = "コピー元ファイルを選択してください",
                 Multiselect = true,
-                ShowHiddenItems = excludeHiddenFIles,
+                ShowHiddenItems = excludeHiddenFiles,
             })
             {
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    var sourceFiles = openFolderDialog.FileNames;
-                    var rc = _fileList.AddSourceFiles(sourceFiles, excludeHiddenFIles);
-                    if (rc == FileList.Code.NG)
-                    {
-                        await DialogHost.Show(new ErrorDialog(_fileList.Message, ErrorDialog.Type.Error));
-                    }
-                    // コピーするファイルがない場合はCopyボタンやクリアボタン、フィルタリングボタンが無効
-                    var enable = (_fileList.FileNameList.Count > 0);
-                    CopyButton.IsEnabled = enable;
-                    ClearButton.IsEnabled = enable;
-                    FilterButton.IsEnabled = _fileList.HasExtensions() && enable;
+                    AddFiles(openFolderDialog.FileNames, excludeHiddenFiles);
                 }
             }
         }
@@ -453,6 +461,28 @@ namespace CopyFilesWithSpecifiedName
 
             FromListBox?.Items.Refresh();
             ToListBox?.Items.Refresh();
+        }
+
+        private void FromListBox_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.All;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void FromListBox_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+                AddFiles(fileNames, ExcludeCheck.IsChecked);
+            }
         }
     }
 }

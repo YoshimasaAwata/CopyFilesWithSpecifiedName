@@ -69,9 +69,9 @@ namespace CopyFilesWithSpecifiedName
         /// </summary>
         /// <param name="file">追加するファイル名</param>
         /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
-        protected void AddFromFile(string file, bool exclude)
+        protected void AddFromFile(string file, bool? exclude)
         {
-            if (!exclude)
+            if ((exclude != null) && (exclude == false))
             {
                 FileNameList.Add(new FileNames() { FromFile = file });
             }
@@ -92,7 +92,7 @@ namespace CopyFilesWithSpecifiedName
         /// <param name="dir">ファイルのコピー元フォルダ名</param>
         /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
         /// <returns>処理結果</returns>
-        public Code AddSourceFiles(IEnumerable<string> files, bool exclude)
+        public Code AddSourceFiles(IEnumerable<string> files, bool? exclude)
         {
             Code result = Code.OK;
 

@@ -70,7 +70,7 @@
                     <TextBox x:Name="StartNumTextBox" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" HorizontalContentAlignment="Right" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="StartNumTextBox_PreviewTextInput" CommandManager.PreviewExecuted="StartNumTextBox_PreviewExecuted" TextChanged="StartNumTextBox_TextChanged"/>
                 </DockPanel>
             </Grid>
-            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="1" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged" Loaded="FromListBox_Loaded">
+            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="1" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged" Loaded="FromListBox_Loaded" AllowDrop="True" DragOver="FromListBox_DragOver" Drop="FromListBox_Drop">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
