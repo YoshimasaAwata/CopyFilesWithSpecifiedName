@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -44,6 +45,8 @@ namespace CopyFilesWithSpecifiedName
         /// <value>フィルタリング用拡張子を複数指定する際の区切り文字</value>
         private static readonly char[] s_delimiter = { ',', ' ', '.', ';', ':' };
 
+        /// <value>FFmpegを使用できるかどうか</value>
+        public bool FFmpeg { get; set; } = false;
         /// <value>コピー元およびコピー先のファイル名のリスト</value>
         public ObservableCollection<FileNames> FileNameList { get; } = new ObservableCollection<FileNames>();
         /// <value>エラー等のメッセージ</value>
@@ -62,6 +65,25 @@ namespace CopyFilesWithSpecifiedName
         public int Digit { get; private set; } = 1;
         /// <value>連番のスタートの値</value>
         public int StartNum { get; private set; } = 0;
+
+        public FileList()
+        {
+            var info = new ProcessStartInfo()
+            {
+                FileName = "ffplay",
+                Arguments = "-version",
+                CreateNoWindow = true,
+            };
+            var process = Process.Start(info);
+            if (process != null)
+            {
+                process.WaitForExit();
+                if (process.ExitCode == 0)
+                {
+                    FFmpeg = true;
+                }
+            }
+        }
 
         /// <summary>
         /// 指定のファイル名を"FileNameList"に追加<br/>
@@ -356,6 +378,28 @@ namespace CopyFilesWithSpecifiedName
                 }
                 MakeToFilesList();
             }
+        }
+
+        public async Task<bool> PlayWithFFmpeg(int index)
+        {
+            bool rc = false;
+            var playFile = FileNameList[index].FromFile;
+            if (playFile != null)
+            {
+                var info = new ProcessStartInfo()
+                {
+                    FileName = "ffplay",
+                    Arguments = $"\"{playFile}\"",
+                    CreateNoWindow = true,
+                };
+                var process = Process.Start(info);
+                if (process != null)
+                {
+                    await process.WaitForExitAsync();
+                    rc = (process.ExitCode == 0);
+                }
+            }
+            return rc;
         }
     }
 }

@@ -43,6 +43,7 @@ namespace CopyFilesWithSpecifiedName
             ToListBox.ItemsSource = _fileList.FileNameList;
             FileNameTextBox.Text = "new-file-name";
             ToTextBox.Text = _fileList.TargetDir;
+            ShowButton.Visibility = _fileList.FFmpeg ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private async void AddFiles(IEnumerable<string>? files, bool? exclude)
@@ -212,6 +213,7 @@ namespace CopyFilesWithSpecifiedName
             UpButton.IsEnabled = enable;
             DownButton.IsEnabled = enable;
             DeleteButton.IsEnabled = enable;
+            ShowButton.IsEnabled = enable;
 
             if (FromListBox.SelectedIndex == 0)
             {
@@ -281,6 +283,7 @@ namespace CopyFilesWithSpecifiedName
                 UpButton.IsEnabled = false;
                 DownButton.IsEnabled = false;
                 FilterButton.IsEnabled = false;
+                ShowButton.IsEnabled = false;
             }
         }
 
@@ -482,6 +485,11 @@ namespace CopyFilesWithSpecifiedName
             }
         }
 
+        /// <summary>
+        /// ドラッグした時にファイルかどうかでポインターを変化させる
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FromListBox_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -495,12 +503,32 @@ namespace CopyFilesWithSpecifiedName
             e.Handled = true;
         }
 
+        /// <summary>
+        /// ファイルをドロップした時にリストに追加
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FromListBox_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
                 AddFiles(fileNames, ExcludeCheck.IsChecked);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void ShowButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool rc = await _fileList.PlayWithFFmpeg(FromListBox.SelectedIndex);
+            if (!rc)
+            {
+                var dialog = new ErrorDialog("FFmpegによる表示に失敗しました。");
+                await DialogHost.Show(dialog);
             }
         }
     }
